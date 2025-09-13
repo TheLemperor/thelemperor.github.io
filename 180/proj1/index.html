@@ -1,0 +1,297 @@
+<html>
+
+<head>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=default'></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;400&display=swap" rel="stylesheet">
+  <style>
+    h1 {
+      text-align: center;
+    }
+
+    .container {
+      margin: 0 auto;
+      padding: 60px 20%;
+    }
+
+    figure {
+      text-align: center;
+    }
+
+    img {
+      display: inline-block;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>CS180 Fall 2025 Project 1 Write-Up</h1>
+    <div style="text-align: center;">Name: Lemuel Sumardy</div>
+
+    <br>
+
+    Link to webpage: <a
+      href="https://thelemperor.github.io/180/proj1/index.html">https://thelemperor.github.io/180/proj2/index.html</a>
+
+    <br>
+
+    Link to GitHub repository: <a href="https://github.com/TheLemperor/cs180-project-1">https://github.com/TheLemperor/cs180-project-1</a>
+
+    <!--
+		We've already added one heading per task, to make your write-up as navigable when grading. Please fit your write-up within these sections!
+		-->
+
+    <!-- <h2>Overview</h2>
+		In this proiect... -->
+
+    <!-- Image example -->
+    <!-- <div style="display: flex; flex-direction: column; align-items: center;">
+			<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			  <tr>
+				<td style="text-align: center; width: 50%">
+				  <img src="task1.png" width="100%"/>
+				  <figcaption>Rasteriation: No aliasing</figcaption>
+				</td>
+			  </tr>
+			</table>
+		</div> -->
+    <h2>Overview of Project</h2>
+    <p>The goal of this project was to take a digitized Prokudin-Gorskii 
+      glass plate image and automatically produce a color image with as
+      few visual artifacts as possible. This was done by splitting the image
+      into the corresponding r, g, b sections, aligning them and then putting 
+      them on top of each other.</p>
+    <h2>Approach</h2>
+    <h3>Single-scale alignment</h3>
+    <p>    Single scale alignment was done by taking in 2 images. One image is translated [-15, 15] in
+    both the x and y direction with steps of 4 each. At each step the image is scored against the other image. This 
+    comparison is done with a scoring system, Normalized Cross-Correlation (NCC), which is a dot product
+    between two normalized vectors. The translation with the highest score is kept.</p>
+  
+    <p>    There were issues with the scoring, where the borders of the images hurt my results, so I opted
+    to cut out 20 percent of each side of the image and then run NCC. I originally started out
+    with 10 percent, which worked fine, but to make the algorithm more efficient, I increased it to 20 percent. 
+    </p>
+
+    <p>The run time is around 18s-19s per jpg image.</p>
+
+    <h3>Multi-scale pyramid alignment</h3>
+    <p>Multi-scale pyramid alignment was done by first creating an image pyramid for each
+      of the r, g, b images. I implemented a downsampling method which first runs a binomial
+      filter on the image and then decimation by a factor of 2. Each pyramid had 4 total images,
+      the original, and 3 downsampled. 
+    </p>
+    <p>Alignment, using the same method as single scale, was then started at the lowest resolution image. This 
+      returned the best offset for that image. This offset was then multiplied by a factor of 2 and applied
+      to the next highest resolution. This is then repeated until all the images with a resolution lower then
+      3000 in the x is done. This was done so the large images would be sped up by removing the original, but the lower resolution
+      jpg images would still be done with all of them.
+    </p>
+
+    <p>The run time is around 40s for the tif files and 2s for the jpg files.</p>
+
+    <h2>Images that didn't work</h2>
+    <p>    The only image that did not work well was emir.tif. This is because the images to be matched for this
+    did not actually have the same brightness values and so ncc did not work properly.</p>
+
+    <h2>Single-scale alignment on example images</h2>
+    <div style="display: flex; flex-direction: column; align-items: center;">
+      <table style="width: 100%; text-align: center; border-collapse: collapse;">
+        <tr>
+          <td style="text-align: center; width: 50%">
+            <img src="Images/Standard/0_cathedral.jpg" width="100%" />
+            <figcaption>cathedral.jpg<br>
+              Red: 3 x, -12 y offset<br>
+              Green: 2 x, -5 y offset<br>
+              Total time: 17.47</figcaption>
+          </td>
+          <td style="text-align: center; width: 50%">
+            <img src="Images/Standard/0_monastery.jpg" width="100%" />
+            <figcaption>monastery.jpg<br>
+              Red: 2 x, -3 y offset<br>
+              Green: 2 x, 3 y offset<br>
+              Total time: 18.13s</figcaption>
+          </td>
+        </tr>
+        <tr>
+          <td style="text-align: center; width: 50%">
+            <img src="Images/Standard/0_tobolsk.jpg" width="100%" />
+            <figcaption>tobolsk.jpg<br>
+              Red: 3 x, -7 y offset<br>
+              Green: 3 x, -3 y offset<br>
+              Total time: 17.87s</figcaption>
+          </td>
+        </tr>
+      </table>
+
+    </div>
+
+
+    <h2>Multi-scale pyramid alignment with NCC on example images</h2>
+    <div style="display: flex; flex-direction: column; align-items: center;">
+      <table style="width: 100%; text-align: center; border-collapse: collapse;">
+        <tr>
+          <td style="text-align: center; width: 50%">
+            <img src="Images/Pyramid/1_cathedral.jpg" width="100%" />
+            <figcaption>
+              cathedral.jpg<br>
+              Red: 3 x, -11 y offset<br>
+              Green: 3 x, -3 y offset<br>
+              Total time: 1.59s</figcaption>
+          </td>
+          <td style="text-align: center; width: 50%">
+            <img src="Images/Pyramid/1_church.jpg" width="100%" />
+            <figcaption>
+              church.tif<br>
+              Red: -2 x, -62 y offset<br>
+              Green: 6 x, -22 y offset<br>
+              Total time: 38.32s</figcaption>
+          </td>
+        </tr>
+        <tr>
+          <td style="text-align: center; width: 50%">
+            <img src="Images/Pyramid/1_emir.jpg" width="100%" />
+            <figcaption>emir.tif<br>
+              Red: 46 x, -46 y offset<br>
+              Green: 22 x, -46 y offset<br>
+              Total time: 38.53</figcaption>
+          </td>
+          <td style="text-align: center; width: 50%">
+            <img src="Images/Pyramid/1_harvesters.jpg" width="100%" />
+            <figcaption>harvesters.tif<br>
+              Red: 13 x, -125 y offset<br>
+              Green: 13 x, -62 y offset<br>
+              Total time: 38.31s</figcaption>
+          </td>
+        </tr>
+        <tr>
+          <td style="text-align: center; width: 50%">
+            <img src="Images/Pyramid/1_icon.jpg" width="100%" />
+            <figcaption>icon.tif<br>
+              Red: 21 x, -86 y offset<br>
+              Green: 14 x, -38 y offset<br>
+              Total time: 39.38s</figcaption>
+          </td>
+          <td style="text-align: center; width: 50%">
+            <img src="Images/Pyramid/1_italil.jpg" width="100%" />
+            <figcaption>italil.tif<br>
+              Red: 38 x, -78 y offset<br>
+              Green: 21 x, -38 y offset<br>
+              Total time: 39.14s</figcaption>
+          </td>
+        </tr>
+        <tr>
+          <td style="text-align: center; width: 50%">
+            <img src="Images/Pyramid/1_lastochikino.jpg" width="100%" />
+            <figcaption>lastochikino.tif<br>
+              Red: -2 x, 2 y offset<br>
+              Green: -10 x, -78 y offset<br>
+              Total time: 38.97s</r></figcaption>
+          </td>
+          <td style="text-align: center; width: 50%">
+            <img src="Images/Pyramid/1_lugano.jpg" width="100%" />
+            <figcaption>lugano.tif<br>
+              Red: -25 x, -93 y offset<br>
+              Green: -18 x, -38 y offset<br>
+              Total time: 40.11s</figcaption>
+          </td>
+        </tr>
+        <tr>
+          <td style="text-align: center; width: 50%">
+            <img src="Images/Pyramid/1_melons.jpg" width="100%" />
+            <figcaption>melons.tif<br>
+              Red: 14 x, -182 y offset<br>
+              Green: 6 x, -78 y offset<br>
+              Total time: 39.56s</figcaption>
+          </td>
+          <td style="text-align: center; width: 50%">
+            <img src="Images/Pyramid/1_monastery.jpg" width="100%" />
+            <figcaption>monastery.jpg<br>
+              Red: 3 x, -3 y offset<br>
+              Green: 3 x, 5 y offset<br>
+              Total time: 1.62s</figcaption>
+          </td>
+        </tr>
+        <tr>
+          <td style="text-align: center; width: 50%">
+            <img src="Images/Pyramid/1_self_portrait.jpg" width="100%" />
+            <figcaption>self_portrait.tif<br>
+              Red: 38 x, -174 y offset<br>
+              Green: 30 x, -78 y offset<br>
+              Total time: 40.29s</figcaption>
+          </td>
+          <td style="text-align: center; width: 50%">
+            <img src="Images/Pyramid/1_siren.jpg" width="100%" />
+            <figcaption>siren.tif<br>
+              Red: -26 x, -94 y offset<br>
+              Green: -2 x, -46 y offset<br>
+              Total time: 40.55s</figcaption>
+          </td>
+        </tr>
+        <tr>
+          <td style="text-align: center; width: 50%">
+            <img src="Images/Pyramid/1_three_generations.jpg" width="100%" />
+            <figcaption>three_generations.tif<br>
+              Red: 14 x, -110 y offset<br>
+              Green: 14 x, -54 y offset<br>
+              Total time: 38.65s</figcaption>
+          </td>
+          <td style="text-align: center; width: 50%">
+            <img src="Images/Pyramid/1_tobolsk.jpg" width="100%" />
+            <figcaption>tobolsk.jpg<br>
+              Red: 3 x, -7 y offset<br>
+              Green: 3 x, -3 y offset<br>
+              Total time: 1.66s</figcaption>
+          </td>
+        </tr>
+      </table>
+    </div>
+    <h2>Single-scale alignment with NCC on images from the Prokudin-Gorskii collection</h2>
+    <div style="display: flex; flex-direction: column; align-items: center;">
+      <table style="width: 100%; text-align: center; border-collapse: collapse;">
+        <tr>
+          <td style="text-align: center; width: 50%">
+            <img src="Images/Custom/0_spices.jpg" width="100%" />
+            <figcaption>[Biological specimens, beans(?) and/or seeds(?), in display case]<br>
+              Red: 11 x, -9 y offset<br>
+              Green: 4 x, -4 y offset<br>
+              Total time: 18.9s</figcaption>
+          </td>
+          <td style="text-align: center; width: 50%">
+            <img src="Images/Custom/0_statue.jpg" width="100%" />
+            <figcaption>V parkie "Monrepos" v Vyborgie<br>
+              Red: 0 x, 15 y offset<br>
+              Green: 0 x, 4 y offset<br>
+              Total time: 18.2</figcaption>
+          </td>
+        </tr>
+      </table>
+    </div>
+    <h2>Multi-scale pyramid alignment with NCC on images from the Prokudin-Gorskii collection</h2>
+    <div style="display: flex; flex-direction: column; align-items: center;">
+      <table style="width: 100%; text-align: center; border-collapse: collapse;">
+        <tr>
+          <td style="text-align: center; width: 50%">
+            <img src="Images/Custom/1_1.jpg" width="100%" />
+            <figcaption>V oranzhereie<br>
+              Red: 38 x, -126 y offset<br>
+              Green: 30 x, -62 y offset<br>
+              Total time: 40.35s</figcaption>
+          </td>
+          <td style="text-align: center; width: 50%">
+            <img src="Images/Custom/1_2.jpg" width="100%" />
+            <figcaption>Irrigation canal (aryk) in the Murgab Estate<br>
+              Red: 22 x, -30 y offset<br>
+              Green: 46 x, -46 y offset<br>
+              Total time: 39.01s</figcaption>
+          </td>
+        </tr>
+      </table>
+    </div>
+</body>
+
+</html>
