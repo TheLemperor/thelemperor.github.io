@@ -1,0 +1,201 @@
+<html>
+
+<head>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=default'></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;400&display=swap" rel="stylesheet">
+  <style>
+    h1 {
+      text-align: center;
+    }
+
+    .container {
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    figure {
+      text-align: center;
+    }
+
+    img {
+      display: inline-block;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+
+    pre {
+      display: block;
+      margin: 20px auto;   
+      padding: 15px;
+      max-width: 90%;      
+      overflow-x: auto;    
+      background: #f4f4f4; 
+      border-radius: 8px;
+      font-size: 12px;
+      line-height: 1.4;
+      white-space: pre;    
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>CS180 Fall 2025 Project 2 Write-Up</h1>
+    <div style="text-align: center;">Name: Lemuel Sumardy</div>
+
+    <br>
+    Link to webpage: <a
+      href="https://thelemperor.github.io/180/proj2/index.html">https://thelemperor.github.io/180/proj2/index.html</a>
+    <br>
+    <h2>Overview of Project</h2>
+    <p>The goal of this project was...</p>
+    <h2>Approach</h2>
+    <h2>Part 1: Filters and Edges</h2>
+    <h3>Part 1.1: Convolutions from Scratch!</h3>
+    <h4>4 for-loop implementation</h4>
+    <pre>
+def convolution_4_loops(img, filter):
+  # Code assumes image is colored
+  # flip filter for convolution
+  filter = np.flip(filter)
+  
+  # makes sure filter 2d for colored images
+  filter = np.atleast_2d(filter)
+
+  input_img = img.copy()
+  out_img = np.zeros_like(input_img)
+
+  # add 0 padding for image
+  pad_h = (filter.shape[0] - 1) // 2
+  pad_w = (filter.shape[1] - 1) // 2
+  input_img = np.pad(input_img, pad_width=((pad_h, pad_h), (pad_w, pad_w), (0, 0)), mode='constant')
+
+  # apply kernel filter
+  for row in tqdm(range(pad_h, input_img.shape[0] - pad_h)):
+    for col in range(pad_w, input_img.shape[1] - pad_w):
+      filter_sum = np.zeros((input_img.shape[2]))
+      for k_row in range(filter.shape[0]):
+          for k_col in range(filter.shape[1]):
+            filter_sum += filter[k_row][k_col] * input_img[row - pad_h + k_row][col - pad_w + k_col]
+      out_img[row - pad_h, col - pad_w] = filter_sum
+
+  # if image is gray scale, remove unecessary shape which is added outside function
+  if input_img.shape[2] == 1:
+    return out_img.squeeze()
+  return out_img
+    </pre>
+    <h4>2 for-loop implementation</h4>
+    <pre>
+def convolution_2_loops(img, filter):
+  # Code assumes image is colored
+  filter = np.flip(filter)
+  filter = np.atleast_2d(filter)
+
+  input_img = img.copy()
+  out_img = np.zeros_like(input_img)
+
+  # add 0 padding for image
+  pad_h = (filter.shape[0] - 1) // 2
+  pad_w = (filter.shape[1] - 1) // 2
+  input_img = np.pad(input_img, pad_width=((pad_h, pad_h), (pad_w, pad_w), (0, 0)), mode='constant')
+
+  # apply kernel filter
+  for row in tqdm(range(pad_h, input_img.shape[0] - pad_h)):
+    for col in range(pad_w, input_img.shape[1] - pad_w):
+      
+      # portion of image kernel is applied to
+      cropped = input_img[row-pad_h:row+pad_h+1, col-pad_w:col+pad_w+1]
+      out_img[row - pad_h, col - pad_w] = np.sum(cropped * filter[:, :, np.newaxis], axis=(0, 1))
+
+  # if image is gray scale, remove unecessary shape which is added outside of function
+  if input_img.shape[2] == 1:
+    return out_img.squeeze()
+  return out_img
+    </pre>
+    <h3>Results of 4 Loop Implementation</h3>
+    <img src="Images/Part 1/4_convolution.png" width="100%" />
+    <figcaption>
+      Box filter Time: 0:01:19.636627<br>
+      Dx Time: 0:00:04.073288<br>
+      Dy Time: 0:00:04.248575</figcaption>
+    <h3>Results of 2 Loop Implementation</h3>
+    <img src="Images/Part 1/2_convolution.png" width="100%" />
+    <figcaption>
+      Box filter Time: 0:00:02.247741<br>
+      Dx Time: 0:00:02.269082<br>
+      Dy Time: 0:00:02.224948</figcaption>
+    <h3>Results of Scipy Convolution</h3>
+    <img src="Images/Part 1/scipy_convolution.png" width="100%" />
+    <figcaption>
+      Box_filter Time: 0:00:00.647408 <br>
+      Dx Time: 0:00:00.007767<br>
+      Dy Time: 0:00:00.009868</figcaption>
+    <h4>Comparison with scipy.signal.convolve2d</h4>
+    <p>The run time of scipy.signal.convolve2d is much faster
+      compared to both implementations of 2d convolution. The largest filter,
+      box filter, only took .6 seconds as opposed to 2 second in my 2 Loop
+      implementation and 1 minute 19 seconds in my 4 loop implementation. 
+      For the Dx and Dy filters, it took around 0.01 seconds as opposed to 
+      around 2 seconds in my 2 loop and 4 seconds in my 4 loop. 
+    </p>
+    <p>Boundaries are handled the same. My 2 loop and 4 loop implementation add 0s
+      depending on the width of the kernel. This is the same for scipy.signal.convolve2d,
+      where the default behavior is to pad with 0s.
+    </p>
+    <h3>Part 1.2: Finite Difference Operator</h3>
+    <figcaption>Original Cameraman Image</figcaption>
+    <img src="Images/Part 1/cameraman.png" width="100%" />
+    <img src="Images/Part 1/part1_2.png" width="100%" />
+    <h4>Justification with edge and noise</h4>
+    <p>I used a threshold of 205. I chose this because when testing, I determined
+      this was the value that gave the clearest edges while minimizing the most noise. A larger
+      thershold would mean less noise but less edges and anything lower would have 
+      much more noise.
+    </p>
+    <h3>Part 1.3: Derivative of Gaussian (DoG) Filter</h3>
+    <img src="Images/Part 1/part1_3.png" width="100%" />
+    <h4>Comparison with finite difference method</h4>
+    <p>I notice that compared to the finite difference method,
+      there is much less noise. This makes sense since the smoothening
+      that is happening removes the sharp changes/noise, leaving only the
+      main edges that we want.
+    </p>
+    <h2>Part 2: Applications</h2>
+    <h3>Part 2.1</h3>
+    <h4>Unsharp Mask Filter Implementation</h4>
+    <p>The unsharp mask filter is done by taking and image and applying the gaussian kernel to it. 
+      You then take the original image and subtract the blurred image to capture
+      only the high frequencies. You then add these high frequencies scaled by a factor
+      alpha to the original image, creating a "sharpening" effect"
+    </p>
+    <p>
+      To make this more efficient, this can be simplified to a single kernel ((1 + alpha) * identity_kernel - alpha * gaussian_kernel)
+    </p>
+    <h4>Results</h4>
+    <img src="Images/Part 2-1/taj.png" width="100%" />
+    <p>Comparing image 5, which was blurred than sharpened, to image 4, which was just sharpened,
+      you can see that image 5 still has less details compared to image 4. This is because after blurring,
+      you can't regain the details that were lost. This is applicable to low megapixel cameras. If the image
+      your camera takes has low details, no amount of processing or sharpening can regain those lost details.
+    </p>
+    <img src="Images/Part 2-1/gundam.png" width="100%" />
+    <p>The above images show the results of varying the sharpness. With these exaggerated alpha
+      values, you can see what sharpening is actually doing, which is multiplying the sharp changes or the edges.
+    </p>
+    <h3>Part 2.2</h3>
+    <img src="Images/Part 2-2/cat_man_1.png" width="100%" />
+    <img src="Images/Part 2-2/cat_man_2.png" width="100%" />
+    <img src="Images/Part 2-2/gundam_man.png" width="100%" />
+    <img src="Images/Part 2-2/suisei_man.png" width="100%" />
+    <h3>Part 2.3 + 2.4</h3>
+    <img src="Images/Part 2-3/Gaussian-Laplaccian-stacks.png" width="100%" />
+    <img src="Images/Part 2-3/blending.png" width="100%" />
+    <img src="Images/Part 2-3/coconut-man.png" width="100%" />
+    <img src="Images/Part 2-3/basketnut.png" width="100%" />
+
+  </div>
+</body>
+
+</html>
