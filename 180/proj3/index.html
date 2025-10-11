@@ -58,10 +58,10 @@
       <caption>Image Set One</caption>
       <tr>
         <td style="text-align: center; width: 50%">
-          <img src="Images/a1/forest_a.jpg" width="70%" />
+          <img src="images/a1/forest_a.jpg" width="70%" />
         </td>
         <td style="text-align: center; width: 50%">
-          <img src="Images/a1/forest_b.jpg" width="70%" />
+          <img src="images/a1/forest_b.jpg" width="70%" />
         </td>
       </tr>
     </table>
@@ -69,10 +69,10 @@
       <caption>Image Set Two</caption>
       <tr>
         <td style="text-align: center; width: 50%">
-          <img src="Images/a1/rooma.jpeg" width="70%" />
+          <img src="images/a1/rooma.jpeg" width="70%" />
         </td>
         <td style="text-align: center; width: 50%">
-          <img src="Images/a1/roomb.jpeg" width="70%" />
+          <img src="images/a1/roomb.jpeg" width="70%" />
         </td>
       </tr>
     </table>
@@ -80,16 +80,16 @@
       <caption>Image Set Three</caption>
       <tr>
         <td style="text-align: center; width: 50%">
-          <img src="Images/a4/ryan_a.jpeg" width="70%" />
+          <img src="images/a4/ryan_a.jpeg" width="70%" />
         </td>
         <td style="text-align: center; width: 50%">
-          <img src="Images/a4/ryan_b.jpeg" width="70%" />
+          <img src="images/a4/ryan_b.jpeg" width="70%" />
         </td>
       </tr>
     </table>
     <h2>A.2: Recover Homographies</h2>
     <div style="text-align: center;">
-      <img src="Images/a2/room_correspondences.png" width="100%" />
+      <img src="images/a2/room_correspondences.png" width="100%" />
       <div class="output-block">
         <h3>System of Equations (Ah = b)</h3>
         <pre>
@@ -125,7 +125,7 @@ Vector b:
       </div>
     </div>
     <div style="text-align: center;">
-      <img src="Images/a2/ryan_correspondences.png" width="100%" />
+      <img src="images/a2/ryan_correspondences.png" width="100%" />
       <div class="output-block">
         <h3>System of Equations (Ah = b)</h3>
         <pre>
@@ -162,7 +162,7 @@ Vector b:
       </div>
     </div>
     <div style="text-align: center;">
-      <img src="Images/a2/tree_correspondences.png" width="100%" />
+      <img src="images/a2/tree_correspondences.png" width="100%" />
       <div class="output-block">
         <h3>System of Equations (Ah = b)</h3>
         <pre>
@@ -198,21 +198,21 @@ Vector b:
 </pre>
       </div>
     </div>
-    <h2>A.3: Warp the Images</h2>
+    <h2>A.3: Warp the images</h2>
     <div style="text-align: center">
       <caption>Original Image</caption>
-      <img src="Images/a3/poster.JPG" width="100%" />
+      <img src="images/a3/poster.JPG" width="100%" />
     </div>
     <table style="width: 100%; text-align: center; border-collapse: collapse;">
       <tr>
         
         <td style="text-align: center; width: 50%">
           
-          <img src="Images/a3/poster_nn.png" width="100%" />
+          <img src="images/a3/poster_nn.png" width="100%" />
               <figcaption>Nearest Neighbor Interpolation <br>Time Taken: 28.220417022705078</figcaption>
         </td>
         <td style="text-align: center; width: 50%">
-          <img src="Images/a3/poster_bill.png" width="100%" />
+          <img src="images/a3/poster_bill.png" width="100%" />
           <figcaption>Bilinear Interpolation <br>Time Taken: 54.77740812301636</figcaption>
         </td>
       </tr>
@@ -220,18 +220,18 @@ Vector b:
     <br>
     <div style="text-align: center">
       <caption>Original Image</caption>
-      <img src="Images/a3/flag.jpg" width="100%" />
+      <img src="images/a3/flag.jpg" width="100%" />
     </div>
     <table style="width: 100%; text-align: center; border-collapse: collapse;">
       <tr>
         
         <td style="text-align: center; width: 50%">
           
-          <img src="Images/a3/flag_nn.png" width="100%" />
+          <img src="images/a3/flag_nn.png" width="100%" />
               <figcaption>Nearest Neighbor Interpolation <br>Time Taken: 72.14303493499756</figcaption>
         </td>
         <td style="text-align: center; width: 50%">
-          <img src="Images/a3/flag_bill.png" width="100%" />
+          <img src="images/a3/flag_bill.png" width="100%" />
           <figcaption>Bilinear Interpolation <br>Time Taken: 142.80827379226685</figcaption>
         </td>
       </tr>
@@ -240,7 +240,7 @@ Vector b:
       the run time of of bilinear interpolation is double of how long nearest neighbor took. If I were to zoom in closely
       though, I would be able to see a quality improvement with bilinear interpolation as it minimizes aliasing.
     </p>
-    <h2>A.4: Blend the Images into a Mosaic</h2>
+    <h2>A.4: Blend the images into a Mosaic</h2>
     <h3>Approach</h3>
     <p>For creating the mosaic between two images, I first select the point correspondences manually. Once these points
       are selected, the homography is calculated using the system Ah = b:
@@ -308,13 +308,13 @@ This is then stacked together for the final image.</p>
           <figcaption>
             Source Image 1
           </figcaption>
-          <img src="Images/a4/ryan_a.jpeg" width="70%" />
+          <img src="images/a4/ryan_a.jpeg" width="70%" />
         </td>
         <td style="text-align: center; width: 50%">
           <figcaption>
             Source Image 2
           </figcaption>
-          <img src="Images/a4/ryan_b.jpeg" width="70%" />
+          <img src="images/a4/ryan_b.jpeg" width="70%" />
         </td>
       </tr>
     </table>
@@ -322,7 +322,7 @@ This is then stacked together for the final image.</p>
       Mosaic
     </figcaption>
     <div style="text-align: center;">
-      <img src="Images/a4/ryan_mosaic.png" width="60%" />
+      <img src="images/a4/ryan_mosaic.png" width="60%" />
     </div>
     <table style="width: 100%; text-align: center; border-collapse: collapse;">
       <tr>
@@ -330,13 +330,13 @@ This is then stacked together for the final image.</p>
           <figcaption>
             Source Image 1
           </figcaption>
-          <img src="Images/a4/forest_a.jpg" width="70%" />
+          <img src="images/a4/forest_a.jpg" width="70%" />
         </td>
         <td style="text-align: center; width: 50%">
           <figcaption>
             Source Image 2
           </figcaption>
-          <img src="Images/a4/forest_b.jpg" width="70%" />
+          <img src="images/a4/forest_b.jpg" width="70%" />
         </td>
       </tr>
     </table>
@@ -344,13 +344,13 @@ This is then stacked together for the final image.</p>
       Mosaic
     </figcaption>
     <div style="text-align: center;">
-      <img src="Images/a4/forest_mosaic.png" width="100%" />
+      <img src="images/a4/forest_mosaic.png" width="100%" />
     </div>
     <figcaption style="text-align: center">
       Mosaic zoomed in case it's hard to see
     </figcaption>
     <div style="text-align: center;">
-      <img src="Images/a4/forest_zoomed.png" width="100%" />
+      <img src="images/a4/forest_zoomed.png" width="100%" />
     </div>
     <table style="width: 100%; text-align: center; border-collapse: collapse;">
       <tr>
@@ -358,13 +358,13 @@ This is then stacked together for the final image.</p>
           <figcaption>
             Source Image 1
           </figcaption>
-          <img src="Images/a4/rooma.jpeg" width="70%" />
+          <img src="images/a4/rooma.jpeg" width="70%" />
         </td>
         <td style="text-align: center; width: 50%">
           <figcaption>
             Source Image 2
           </figcaption>
-          <img src="Images/a4/roomb.jpeg" width="70%" />
+          <img src="images/a4/roomb.jpeg" width="70%" />
         </td>
       </tr>
     </table>
@@ -373,7 +373,7 @@ This is then stacked together for the final image.</p>
     </figcaption>
     <div style="text-align: center;">
 
-      <img src="Images/a4/room_mosaic.png" width="60%" />
+      <img src="images/a4/room_mosaic.png" width="60%" />
     </div>
   </div>
 </body>
