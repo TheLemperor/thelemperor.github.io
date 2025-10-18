@@ -76,7 +76,7 @@
         </td>
       </tr>
     </table>
-        <table style="width: 100%; text-align: center; border-collapse: collapse;">
+    <table style="width: 100%; text-align: center; border-collapse: collapse;">
       <caption>Image Set Three</caption>
       <tr>
         <td style="text-align: center; width: 50%">
@@ -205,11 +205,11 @@ Vector b:
     </div>
     <table style="width: 100%; text-align: center; border-collapse: collapse;">
       <tr>
-        
+
         <td style="text-align: center; width: 50%">
-          
+
           <img src="images/a3/poster_nn.png" width="100%" />
-              <figcaption>Nearest Neighbor Interpolation <br>Time Taken: 28.220417022705078</figcaption>
+          <figcaption>Nearest Neighbor Interpolation <br>Time Taken: 28.220417022705078</figcaption>
         </td>
         <td style="text-align: center; width: 50%">
           <img src="images/a3/poster_bill.png" width="100%" />
@@ -224,11 +224,11 @@ Vector b:
     </div>
     <table style="width: 100%; text-align: center; border-collapse: collapse;">
       <tr>
-        
+
         <td style="text-align: center; width: 50%">
-          
+
           <img src="images/a3/flag_nn.png" width="100%" />
-              <figcaption>Nearest Neighbor Interpolation <br>Time Taken: 72.14303493499756</figcaption>
+          <figcaption>Nearest Neighbor Interpolation <br>Time Taken: 72.14303493499756</figcaption>
         </td>
         <td style="text-align: center; width: 50%">
           <img src="images/a3/flag_bill.png" width="100%" />
@@ -237,7 +237,8 @@ Vector b:
       </tr>
     </table>
     <p>Nearest neighbor interpolation and bilinear interpolation have similar quality results to my eyes. However,
-      the run time of of bilinear interpolation is double of how long nearest neighbor took. If I were to zoom in closely
+      the run time of of bilinear interpolation is double of how long nearest neighbor took. If I were to zoom in
+      closely
       though, I would be able to see a quality improvement with bilinear interpolation as it minimizes aliasing.
     </p>
     <h2>A.4: Blend the images into a Mosaic</h2>
@@ -246,61 +247,64 @@ Vector b:
       are selected, the homography is calculated using the system Ah = b:
     </p>
     <p><strong>Matrix A:</strong></p>
-<p>
-\[
-A =
-\begin{bmatrix}
-x_1 & y_1 & 1 & 0 & 0 & 0 & -x_1 u_1 & -y_1 u_1 \\
-0 & 0 & 0 & x_1 & y_1 & 1 & -x_1 v_1 & -y_1 v_1 \\
-\vdots & \vdots & \vdots & \vdots & \vdots & \vdots & \vdots & \vdots \\
-x_n & y_n & 1 & 0 & 0 & 0 & -x_n u_n & -y_n u_n \\
-0 & 0 & 0 & x_n & y_n & 1 & -x_n v_n & -y_n v_n
-\end{bmatrix}
-\]
-</p>
+    <p>
+      \[
+      A =
+      \begin{bmatrix}
+      x_1 & y_1 & 1 & 0 & 0 & 0 & -x_1 u_1 & -y_1 u_1 \\
+      0 & 0 & 0 & x_1 & y_1 & 1 & -x_1 v_1 & -y_1 v_1 \\
+      \vdots & \vdots & \vdots & \vdots & \vdots & \vdots & \vdots & \vdots \\
+      x_n & y_n & 1 & 0 & 0 & 0 & -x_n u_n & -y_n u_n \\
+      0 & 0 & 0 & x_n & y_n & 1 & -x_n v_n & -y_n v_n
+      \end{bmatrix}
+      \]
+    </p>
 
-<p><strong>Homography vector H:</strong></p>
-<p>
-\[
-h =
-\begin{bmatrix}
-h_1 \\ h_2 \\ h_3 \\ h_4 \\ h_5 \\ h_6 \\ h_7 \\ h_8
-\end{bmatrix}, \quad
-H =
-\begin{bmatrix}
-h_1 & h_2 & h_3 \\
-h_4 & h_5 & h_6 \\
-h_7 & h_8 & 1
-\end{bmatrix}
-\]
-</p>
+    <p><strong>Homography vector H:</strong></p>
+    <p>
+      \[
+      h =
+      \begin{bmatrix}
+      h_1 \\ h_2 \\ h_3 \\ h_4 \\ h_5 \\ h_6 \\ h_7 \\ h_8
+      \end{bmatrix}, \quad
+      H =
+      \begin{bmatrix}
+      h_1 & h_2 & h_3 \\
+      h_4 & h_5 & h_6 \\
+      h_7 & h_8 & 1
+      \end{bmatrix}
+      \]
+    </p>
 
-<p><strong>Vector b:</strong></p>
-<p>
-\[
-b =
-\begin{bmatrix}
-u_1 \\ v_1 \\ \vdots \\ u_n \\ v_n
-\end{bmatrix}
-\]
-</p>
-<p>With this homography, image 2 is warped. This is done by taking the corners of the image and applying H to it to figure out the corners of the new image. This
-  is used to create a blank image with the max width and height from the calculated corners. Then each pixel is looped
-  through and nearest neighbor interpolation or bilinear interpolation is used to figure out what color
-  the pixel should be.</p>
-<p>Now with the original image and the warped image, the new image size is calculated by 
-  taking the top-left corner of the warped image in world coordinates and the width/height of image 1. With these values,
-   the minimum x and y values and maximum x and y values are found. Subtracting these gives the new width and height
-    of the canvas that can fit both images.
-</p>
-<p>Image 1 is pasted onto the left side of the image and the warped image is inserted to the right 
-  side of the image, based on the previously mentioned coordinates.</p>
-<p>For blending, a mask is created using a weighed average based on distance 
-  to the edge of the image. A laplacian stack is created for each part of the image and a gaussian stack
-  is created for the mask. Each layer is combined with the formula laplacian_1[i] * mask_level + laplacian_2[i]
-   * (1 - mask_level) where laplacian_1 and laplacian_2 are the laplacian stacks and mask_level
-   the layer of gaussian stack.
-This is then stacked together for the final image.</p>
+    <p><strong>Vector b:</strong></p>
+    <p>
+      \[
+      b =
+      \begin{bmatrix}
+      u_1 \\ v_1 \\ \vdots \\ u_n \\ v_n
+      \end{bmatrix}
+      \]
+    </p>
+    <p>With this homography, image 2 is warped. This is done by taking the corners of the image and applying H to it to
+      figure out the corners of the new image. This
+      is used to create a blank image with the max width and height from the calculated corners. Then each pixel is
+      looped
+      through and nearest neighbor interpolation or bilinear interpolation is used to figure out what color
+      the pixel should be.</p>
+    <p>Now with the original image and the warped image, the new image size is calculated by
+      taking the top-left corner of the warped image in world coordinates and the width/height of image 1. With these
+      values,
+      the minimum x and y values and maximum x and y values are found. Subtracting these gives the new width and height
+      of the canvas that can fit both images.
+    </p>
+    <p>Image 1 is pasted onto the left side of the image and the warped image is inserted to the right
+      side of the image, based on the previously mentioned coordinates.</p>
+    <p>For blending, a mask is created using a weighed average based on distance
+      to the edge of the image. A laplacian stack is created for each part of the image and a gaussian stack
+      is created for the mask. Each layer is combined with the formula laplacian_1[i] * mask_level + laplacian_2[i]
+      * (1 - mask_level) where laplacian_1 and laplacian_2 are the laplacian stacks and mask_level
+      the layer of gaussian stack.
+      This is then stacked together for the final image.</p>
     <h3>Results</h3>
     <table style="width: 100%; text-align: center; border-collapse: collapse;">
       <tr>
@@ -375,6 +379,70 @@ This is then stacked together for the final image.</p>
 
       <img src="images/a4/room_mosaic.png" width="60%" />
     </div>
+    <h2>B.1: Harris Corner Detection</h2>
+    <table style="width: 100%; text-align: center; border-collapse: collapse;">
+      <tr>
+        <td style="text-align: center; width: 50%">
+          <img src="images/b1/im1_comparison.png" width="100%" />
+          <figcaption>Detected corners overlaid on image 1, with and without ANMS</figcaption>
+        </td>
+      </tr>
+      <tr>
+        <td style="text-align: center; width: 50%">
+          <img src="images/b1/im2_comparison.png" width="100%" />
+          <figcaption>Detected corners overlaid on image 2, with and without ANMS</figcaption>
+        </td>
+      </tr>
+    </table>
+    <h2>B.2: Feature Descriptor Extraction</h2>
+    <table style="width: 100%; text-align: center; border-collapse: collapse;">
+      <tr>
+        <td style="text-align: center; width: 50%">
+          <img src="images/b2/im1_process.png" width="100%" />
+          <figcaption>40x40 window, blurred and 8x8 features of image 1</figcaption>
+        </td>
+      </tr>
+      <tr>
+        <td style="text-align: center; width: 50%">
+          <img src="images/b2/im1_features.png" width="100%" />
+          <figcaption>24 features of image 1</figcaption>
+        </td>
+      </tr>
+    </table>
+    <table style="width: 100%; text-align: center; border-collapse: collapse;">
+      <tr>
+        <td style="text-align: center; width: 50%">
+          <img src="images/b2/im2_process.png" width="100%" />
+          <figcaption>40x40 window, blurred and 8x8 features of image 2</figcaption>
+        </td>
+      </tr>
+      <tr>
+        <td style="text-align: center; width: 50%">
+          <img src="images/b2/im2_features.png" width="100%" />
+          <figcaption>24 features of image 2</figcaption>
+        </td>
+      </tr>
+    </table>
+    <h2>B.3: Feature Matching</h2>
+      <div style="text-align: center;">
+        <img src="images/b3/matches.png" width="100%" />
+        <figcaption>Matches of image 1 and image 2</figcaption>
+      </div>
+    <h2>B.4: RANSAC for Robust Homography</h2>
+    <table style="width: 100%; text-align: center; border-collapse: collapse;">
+      <tr>
+        <td style="text-align: center; width: 50%">
+          <img src="images/b2/im2_process.png" width="100%" />
+          <figcaption>40x40 window, blurred and 8x8 features of image 2</figcaption>
+        </td>
+      </tr>
+      <tr>
+        <td style="text-align: center; width: 50%">
+          <img src="images/b2/im2_features.png" width="100%" />
+          <figcaption>24 features of image 2</figcaption>
+        </td>
+      </tr>
+    </table>
   </div>
 </body>
 
