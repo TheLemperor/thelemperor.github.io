@@ -1,0 +1,342 @@
+<html>
+
+<head>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=default'></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;400&display=swap" rel="stylesheet">
+  <style>
+    h1 {
+      text-align: center;
+    }
+
+    .container {
+      margin: 0 auto;
+      padding: 40px 20%;
+    }
+
+    figure {
+      text-align: center;
+    }
+
+    img {
+      display: inline-block;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+
+    pre {
+      display: block;
+      margin: 20px auto;
+      padding: 15px;
+      max-width: 90%;
+      overflow-x: auto;
+      background: #f4f4f4;
+      border-radius: 8px;
+      font-size: 12px;
+      line-height: 1.4;
+      white-space: pre;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>CS180 Fall 2025 Project 4 Write-Up</h1>
+    <div style="text-align: center;">Name: Lemuel Sumardy</div>
+
+    <br>
+    Link to webpage: <a
+      href="https://thelemperor.github.io/180/proj4/index.html">https://thelemperor.github.io/180/proj4/index.html</a>
+    <br>
+    <h2>Overview of Project</h2>
+    <p>The goal of this project was to implement nerf, starting from callibrating the camera
+      , getting the poses to creating, training and using the model.
+    </p>
+    <h2>Part 0</h2>
+    <div>
+      <h3>Screenshots of cloud of cameras in Viser</h3>
+      <div style="text-align: center;">
+        <img src="images/part0/img1.png" width="100%" />
+      </div>
+      <div style="text-align: center;">
+        <img src="images/part0/img2.png" width="100%" />
+      </div>
+    </div>
+    <h2>Part 1</h2>
+    <h3>Model Architecture</h3>
+    <ul>
+      <li>Number of layers: 4</li>
+      <li>Width: 512</li>
+      <li>Max Frequency: 16</li>
+      <li>Learning rate: 0.001</li>
+    </ul>
+    <h3>Training Progression</h3>
+    <h4>Fox</h4>
+    <table style="width: 100%; text-align: center; border-collapse: collapse;">
+      <tr>
+        <td style="text-align: center; width: 50%">
+          <img src="images/part1/img_0.jpg" width="70%" />
+          <figcaption>0 Epochs</figcaption>
+        </td>
+        <td style="text-align: center; width: 50%">
+          <img src="images/part1/img_250.jpg" width="70%" />
+          <figcaption>250 Epochs</figcaption>
+        </td>
+      </tr>
+      <tr>
+        <td style="text-align: center; width: 50%">
+          <img src="images/part1/img_500.jpg" width="70%" />
+          <figcaption>500 Epochs</figcaption>
+        </td>
+        <td style="text-align: center; width: 50%">
+          <img src="images/part1/img_750.jpg" width="70%" />
+          <figcaption>750 Epochs</figcaption>
+        </td>
+      </tr>
+      <tr>
+        <td style="text-align: center; width: 50%">
+          <img src="images/part1/img_999.jpg" width="70%" />
+          <figcaption>999 Epochs</figcaption>
+        </td>
+      </tr>
+    </table>
+    <h4>Own image</h4>
+
+    <table style="width: 100%; text-align: center; border-collapse: collapse;">
+      <tr>
+        <td style="text-align: center; width: 50%">
+          <img src="images/part1/own-progression/img_0.jpg" width="70%" />
+          <figcaption>0 Epochs</figcaption>
+        </td>
+        <td style="text-align: center; width: 50%">
+          <img src="images/part1/own-progression/img_250.jpg" width="70%" />
+          <figcaption>250 Epochs</figcaption>
+        </td>
+      </tr>
+      <tr>
+        <td style="text-align: center; width: 50%">
+          <img src="images/part1/own-progression/img_500.jpg" width="70%" />
+          <figcaption>500 Epochs</figcaption>
+        </td>
+        <td style="text-align: center; width: 50%">
+          <img src="images/part1/own-progression/img_750.jpg" width="70%" />
+          <figcaption>750 Epochs</figcaption>
+        </td>
+      </tr>
+      <tr>
+        <td style="text-align: center; width: 50%">
+          <img src="images/part1/own-progression/img_999.jpg" width="70%" />
+          <figcaption>999 Epochs</figcaption>
+        </td>
+      </tr>
+    </table>
+    <h3>Final Results with various max positional encoding frequency and width</h3>
+    </table>
+    <h4>Fox image</h4>
+
+    <table style="width: 100%; text-align: center; border-collapse: collapse;">
+      <tr>
+        <td style="text-align: center; width: 50%">
+          <img src="images/part1/comparison/2_32.jpg" width="70%" />
+          <figcaption>L = 2, Width = 32</figcaption>
+        </td>
+        <td style="text-align: center; width: 50%">
+          <img src="images/part1/comparison/2_512.jpg" width="70%" />
+          <figcaption>L = 2, Width = 512</figcaption>
+        </td>
+      </tr>
+      <tr>
+        <td style="text-align: center; width: 50%">
+          <img src="images/part1/comparison/16_32.jpg" width="70%" />
+          <figcaption>L = 16, Width = 32</figcaption>
+        </td>
+        <td style="text-align: center; width: 50%">
+          <img src="images/part1/img_999.jpg" width="70%" />
+          <figcaption>L = 16, Width = 512</figcaption>
+        </td>
+      </tr>
+    </table>
+    <h3>PSNR curve of fox</h3>
+    <div style="text-align: center;">
+      <img src="images/part1/psnc_plot.png" width="70%" />
+    </div>
+    <h2>Part 2</h2>
+    <h3>Implementation</h3>
+    <h4>Part 2.1: Create Rays from Cameras</h4>
+    <p>For Camera to World Coordinate Conversion, I first take in the N points
+      and convert it into homogenous coordinates. I then apply the transformation to the
+      homogenous coordinates, then normalize it back to 3D by dividing it by w.
+    </p>
+    <p>For Pixel to Camera Coordinate Conversion I convert uv into homogenous and then use this formula
+    </p>
+    <p style="text-align: center;">
+      <b>p</b><sub>camera</sub> = s · K<sup>-1</sup> [u, v, 1]<sup>T</sup>
+    </p>
+    <p>where <b>p</b><sub>camera</sub> = (x<sub>c</sub>, y<sub>c</sub>, z<sub>c</sub>) are the camera coordinates, K is
+      the camera intrinsic matrix, (u, v) are pixel coordinates, and s is the depth scale.</p>
+    <p>For pixel to ray conversion, I extract the camera origin from the camera-to-world matrix. I convert each pixel to
+      camera coordinates at unit depth, transform them to world coordinates, then compute the direction vectors by
+      subtracting the origin. Finally, I normalize these directions to create unit ray vectors.</p>
+    <h4>Part 2.2: Sampling</h4>
+    <p>For sampling rays, I randomly select N indices from the available pixels. I then use these indices to extract the
+      corresponding ray origins, ray directions, and pixel colors from the precomputed arrays.</p>
+    <p>For sampling along rays, I create evenly spaced sample points between the near and far planes using n_samples
+      points. If random is True, I add random jitter to each sample point within its bin. I then compute the 3D
+      positions along each ray using the ray equation x = o + t·d, where o is the origin, d is the direction, and t is
+      the distance parameter.</p>
+    <h4>Part 2.3: Putting the Dataloading All Together</h4>
+    <p>I used the provided code to visualize the rays and sampled points</p>
+    <h4>Part 2.4: Neural Radiance Field</h4>
+    <p>The network architecture I used was the same as the provided except with one change. I added a relu after
+      the linear layer before it splits off into rgb and depth.
+    </p>
+    <p>For training, I used the Adam optimizer with a learning rate of 5e-4 and an exponential learning rate scheduler
+      with gamma of 0.9998 applied after epoch 500.
+      This scheduler lowers the learning rate to allow the model to make large updates early
+      in training for faster convergence, then make smaller, more precise updates later. </p>
+    <p> I trained for 3000 epochs with a batch size of 10,000 rays per iteration,
+      using MSE loss and the PSNR metric/p>
+
+    <h4>Part 2.5: Volume Rendering</h4>
+    <p>For volume rendering, I implement the given rendering equation. First, I compute alpha values using α = 1 -
+      exp(-relu(σ)·δ), where σ is the density, δ is the step size, and ReLU ensures non-negative densities. I then
+      calculate transmittance using cumulative product of (1 - α). The weights are computed as the product of transmittance and alpha. Finally, I sum the weighted RGB
+      values to get the rendered pixel color.</p>
+    <p>To render an image, I first create a grid of all the pixel coordinates in the image and convert them to rays using the
+      camera-to-world transformation. I process the rays in batches of chunk_size to manage memory. For each batch, I sample
+      points along the rays, pass them through the network to get RGB colors and densities, compute step sizes between
+      samples, and apply volume rendering to get pixel colors. Finally, I concatenate all the batches
+      into the final image.</p>
+
+    <p>To generate the gif of the lego, I looped through the given camera poses, passed it into the render image function
+      described above and generated the images at each pose.
+    </p>
+    </p>
+    <h3>Visualization of rays and samples with cameras (up to 100 rays)</h3>
+    <div style="text-align: center;">
+      <img src="images/part2/Lego/Screenshot 2025-11-16 at 6.23.26 PM.png" width="100%" />
+    </div>
+    <div style="text-align: center;">
+      <img src="images/part2/Lego/Screenshot 2025-11-16 at 6.23.45 PM.png" width="100%" />
+    </div>
+    <h3>Training progression visualization with predicted images across iterations</h3>
+    <table style="width: 100%; text-align: center; border-collapse: collapse;">
+      <tr>
+        <td style="text-align: center; width: 50%">
+          <img src="images/part2/Lego/Progression/latest_output_0.png" width="70%" />
+          <figcaption>Epoch 0</figcaption>
+        </td>
+        <td style="text-align: center; width: 50%">
+          <img src="images/part2/Lego/Progression/latest_output_200.png" width="70%" />
+          <figcaption>Epoch 200</figcaption>
+        </td>
+      </tr>
+      <tr>
+        <td style="text-align: center; width: 50%">
+          <img src="images/part2/Lego/Progression/latest_output_400.png" width="70%" />
+          <figcaption>Epoch 400</figcaption>
+        </td>
+        <td style="text-align: center; width: 50%">
+          <img src="images/part2/Lego/Progression/latest_output_1000.png" width="70%" />
+          <figcaption>Epoch 1000</figcaption>
+        </td>
+      </tr>
+      <tr>
+        <td style="text-align: center; width: 50%">
+          <img src="images/part2/Lego/Progression/latest_output_2000.png" width="70%" />
+          <figcaption>Epoch 2000</figcaption>
+        </td>
+        <td style="text-align: center; width: 50%">
+          <img src="images/part2/Lego/Progression/latest_output_2800.png" width="70%" />
+          <figcaption>Epoch 2800</figcaption>
+        </td>
+      </tr>
+    </table>
+    <h3>PSNR curve on the validation set</h3>
+    <div style="text-align: center;">
+      <img src="images/part2/Lego/lego_psnr_validation_curve.png" width="100%" />
+    </div>
+    <h3>Spherical rendering video of the Lego using provided test cameras</h3>
+    <div style="text-align: center;">
+      <img src="images/part2/Lego/lego_video.gif" width="70%" />
+    </div>
+    <div style="text-align: center;">
+      <video width="320" height="240" autoplay>
+        <source src="images/part2/Lego/lego_video (1).mp4" type="video/mp4">
+        Your browser does not support the video tag.
+      </video>
+    </div>
+    <h2>Part 2.6</h2>
+    <h3>Examples of training image</h3>
+        <table style="width: 100%; text-align: center; border-collapse: collapse;">
+      <tr>
+        <td style="text-align: center; width: 50%">
+          <img src="images/part2/Cyndaquil/training/IMG_2276.JPG" width="70%" />
+        </td>
+        <td style="text-align: center; width: 50%">
+          <img src="images/part2/Cyndaquil/training/IMG_2282.JPG" width="70%" />
+        </td>
+      </tr>
+      <tr>
+        <td style="text-align: center; width: 50%">
+          <img src="images/part2/Cyndaquil/training/IMG_2285.JPG" width="70%" />
+        </td>
+        <td style="text-align: center; width: 50%">
+          <img src="images/part2/Cyndaquil/training/IMG_2288.JPG" width="70%" />
+        </td>
+      </tr>
+    </table>
+    <h3>Gif of camera circling your object showing novel views (17 psnr)</h3>
+    <div style="text-align: center;">
+      <img src="images/part2/Cyndaquil/cyndaquil.gif" width="70%" />
+    </div>
+    <h3>Changes to code or hyperparameter changes you made</h3>
+    <p>The code was basically the same accept with 5000 epochs instead of 3000.</p>
+    <p>To generate the gif of the Cyndaquil, I used the provided code to start with a camera poses
+      from the training set, render the image and then continuously transform the pose to eventually make a full circle.
+    </p>
+    <h3>Plot of training loss over iterations</h3>
+    <div style="text-align: center;">
+      <img src="images/part2/Cyndaquil/psnr_validation_curve.png" width="100%" />
+    </div>
+    <div style="text-align: center;">
+      <img src="images/part2/Cyndaquil/loss_curve.png" width="100%" />
+    </div>
+    <h3>Intermediate renders of the scene during training</h3>
+    <table style="width: 100%; text-align: center; border-collapse: collapse;">
+      <tr>
+        <td style="text-align: center; width: 50%">
+          <img src="images/part2/Cyndaquil/Progression/latest_output_0.png" width="70%" />
+          <figcaption>Epoch 0</figcaption>
+        </td>
+        <td style="text-align: center; width: 50%">
+          <img src="images/part2/Cyndaquil/Progression/latest_output_1000.png" width="70%" />
+          <figcaption>Epoch 1000</figcaption>
+        </td>
+      </tr>
+      <tr>
+        <td style="text-align: center; width: 50%">
+          <img src="images/part2/Cyndaquil/Progression/latest_output_2000.png" width="70%" />
+          <figcaption>Epoch 2000</figcaption>
+        </td>
+        <td style="text-align: center; width: 50%">
+          <img src="images/part2/Cyndaquil/Progression/latest_output_3000.png" width="70%" />
+          <figcaption>Epoch 3000</figcaption>
+        </td>
+      </tr>
+      <tr>
+        <td style="text-align: center; width: 50%">
+          <img src="images/part2/Cyndaquil/Progression/latest_output_4000.png" width="70%" />
+          <figcaption>Epoch 4000</figcaption>
+        </td>
+        <td style="text-align: center; width: 50%">
+          <img src="images/part2/Cyndaquil/Progression/latest_output_4800.png" width="70%" />
+          <figcaption>Epoch 4800</figcaption>
+        </td>
+      </tr>
+    </table>
+  </div>
+</body>
+
+</html>
