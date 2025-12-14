@@ -1,0 +1,816 @@
+<html>
+
+<head>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=default'></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;400&display=swap" rel="stylesheet">
+  <style>
+    h1 {
+      text-align: center;
+    }
+
+    .container {
+      margin: 0 auto;
+      padding: 40px 20%;
+    }
+
+    figure {
+      text-align: center;
+    }
+
+    img {
+      display: inline-block;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+
+    pre {
+      display: block;
+      margin: 20px auto;
+      padding: 15px;
+      max-width: 90%;
+      overflow-x: auto;
+      background: #f4f4f4;
+      border-radius: 8px;
+      font-size: 12px;
+      line-height: 1.4;
+      white-space: pre;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>CS180 Fall 2025 Project 5 Write-Up</h1>
+    <div style="text-align: center;">Name: Lemuel Sumardy</div>
+
+    <br>
+    Link to webpage: <a
+      href="https://thelemperor.github.io/180/proj4/index.html">https://thelemperor.github.io/180/proj5/index.html</a>
+    <br>
+    <h2>Overview of Project</h2>
+    <p>The goal of this project was to implement and deploy diffusion models for image generation
+    </p>
+    <h2>Part A: The Power of Diffusion Models</h2>
+
+    <h3>Part 0: Setup</h3>
+    <h4>Text Prompts and Generated Images</h4>
+    <ul>
+      <li>seed: 100</li>
+    </ul>
+    <h4>Prompt: a t-rex on a unicycle</h4>
+    <table style="width: 100%; text-align: center; border-collapse: collapse;">
+      <tr>
+        <td style="text-align: center; width: 33%">
+          <img src="images/Part A/part_1/trex.png" width="70%" />
+          <figcaption>num_inference_steps=20</figcaption>
+        </td>
+        <td style="text-align: center; width: 33%">
+          <img src="images/Part A/part_1/trex2.png" width="70%" />
+          <figcaption>num_inference_steps=40</figcaption>
+        </td>
+      </tr>
+    </table>
+    <h4>Prompt: a couch that is a potato</h4>
+
+    <table style="width: 100%; text-align: center; border-collapse: collapse;">
+      <tr>
+        <td style="text-align: center; width: 33%">
+          <img src="images/Part A/part_1/potato.png" width="70%" />
+          <figcaption>num_inference_steps=20</figcaption>
+        </td>
+        <td style="text-align: center; width: 33%">
+          <img src="images/Part A/part_1/potato2.png" width="70%" />
+          <figcaption>num_inference_steps=40</figcaption>
+        </td>
+      </tr>
+    </table>
+    <h4>Prompt: a potato that is a couch</h4>
+
+    <table style="width: 100%; text-align: center; border-collapse: collapse;">
+      <tr>
+        <td style="text-align: center; width: 33%">
+          <img src="images/Part A/part_1/couch.png" width="70%" />
+          <figcaption>num_inference_steps=20</figcaption>
+        </td>
+        <td style="text-align: center; width: 33%">
+          <img src="images/Part A/part_1/couch2.png" width="70%" />
+          <figcaption>num_inference_steps=40</figcaption>
+        </td>
+      </tr>
+    </table>
+    <p>I notice that with greater number of inference steps, the better the quality of the
+      image generated. The images with 40 steps are much
+      better with what seems to be more realistic shading/lighting and
+      also less AI slop (like the two wheels in the unicycle or whatever that is
+      in the "a potato that is a couch" image with 20 steps).
+    </p>
+
+    <h3>Part 1: Sampling Loops</h3>
+
+    <h4>1.1 Implementing the Forward Process</h4>
+    <h5>Implementation</h5>
+    <p>Forward was implemented by following the equation given which is: <em>x<sub>t</sub></em> = √<span
+        style="text-decoration: overline;">α</span><sub><em>t</em></sub> <em>x</em><sub>0</sub> + √(1 − <span
+        style="text-decoration: overline;">α</span><sub><em>t</em></sub>) <em>ε</em> &nbsp;&nbsp; where <em>ε</em> ~
+      <em>N</em>(0, 1)
+    </p>
+    <table style="width: 100%; text-align: center; border-collapse: collapse;">
+      <tr>
+        <td style="text-align: center; width: 25%">
+          <img src="images/Part A/part_1_1/noise_250.png" width="70%" />
+          <figcaption>Campanile with noise 250</figcaption>
+        </td>
+        <td style="text-align: center; width: 25%">
+          <img src="images/Part A/part_1_1/noise_500.png" width="70%" />
+          <figcaption>Campanile with noise 500</figcaption>
+        </td>
+        <td style="text-align: center; width: 25%">
+          <img src="images/Part A/part_1_1/noise_750.png" width="70%" />
+          <figcaption>Campanile with noise 750</figcaption>
+        </td>
+      </tr>
+    </table>
+
+    <h4>1.2 Classical Denoising</h4>
+    <table style="width: 100%; text-align: center; border-collapse: collapse;">
+      <tr>
+        <td style="text-align: center; width: 33%">
+          <img src="images/Part A/part_1_2/250.png" width="70%" />
+          <figcaption>Gaussian Blur Denoising at t=250</figcaption>
+        </td>
+        <td style="text-align: center; width: 33%">
+          <img src="images/Part A/part_1_2/500.png" width="70%" />
+          <figcaption>Gaussian Blur Denoising at t=500</figcaption>
+        </td>
+        <td style="text-align: center; width: 33%">
+          <img src="images/Part A/part_1_2/750.png" width="70%" />
+          <figcaption>Gaussian Blur Denoising at t=750</figcaption>
+        </td>
+      </tr>
+    </table>
+
+    <h4>1.3 One-Step Denoising</h4>
+    <table style="width: 100%; text-align: center; border-collapse: collapse;">
+      <tr>
+        <td style="text-align: center; width: 33%">
+          <img src="images/Part A/part1_3/250.png" width="70%" />
+          <figcaption>One-Step Denoised Campanile at t=250</figcaption>
+        </td>
+        <td style="text-align: center; width: 33%">
+          <img src="images/Part A/part1_3/500.png" width="70%" />
+          <figcaption>One-Step Denoised Campanile at t=500</figcaption>
+        </td>
+        <td style="text-align: center; width: 33%">
+          <img src="images/Part A/part1_3/700.png" width="70%" />
+          <figcaption>One-Step Denoised Campanile at t=750</figcaption>
+        </td>
+      </tr>
+    </table>
+
+    <h4>1.4 Iterative Denoising</h4>
+    <h5>Implementation</h5>
+    <p>Created timesteps by doing strided_timesteps = [i for i in range(990, -30, -30)]</p>
+    <p>For denoising, got alpha_cumprod and alpha_cumprod_prev from list of alpha_cumprods. Then
+      calculated alpha by doing alpha_cumprod / alpha_cumprod_prev. Then beta = beta = 1 - alpha.
+    </p>
+    <p>Now with these values: I used the given equation: <em>x</em><sub><em>t</em>'</sub> =
+      <span style="display: inline-block; text-align: center; vertical-align: middle;">
+        <span style="display: block; border-bottom: 1px solid black;">√<span
+            style="text-decoration: overline;">α</span><sub><em>t</em>'</sub>β<sub><em>t</em></sub></span>
+        <span style="display: block;">1 − <span style="text-decoration: overline;">α</span><sub><em>t</em></sub></span>
+      </span>
+      <em>x</em><sub>0</sub> +
+      <span style="display: inline-block; text-align: center; vertical-align: middle;">
+        <span style="display: block; border-bottom: 1px solid black;">√α<sub><em>t</em></sub>(1 − <span
+            style="text-decoration: overline;">α</span><sub><em>t</em>'</sub>)</span>
+        <span style="display: block;">1 − <span style="text-decoration: overline;">α</span><sub><em>t</em></sub></span>
+      </span>
+      <em>x</em><sub><em>t</em></sub> + <em>v</em><sub>σ</sub>
+    </p>
+    <h5>Every 5 loops of denoising</h5>
+    <table style="width: 100%; text-align: center; border-collapse: collapse;">
+      <tr>
+        <td style="text-align: center; width: 20%">
+          <img src="images/Part A/part_1_4/1.png" width="70%" />
+        </td>
+        <td style="text-align: center; width: 20%">
+          <img src="images/Part A/part_1_4/2.png" width="70%" />
+        </td>
+        <td style="text-align: center; width: 20%">
+          <img src="images/Part A/part_1_4/3.png" width="70%" />
+        </td>
+        <td style="text-align: center; width: 20%">
+          <img src="images/Part A/part_1_4/4.png" width="70%" />
+        </td>
+        <td style="text-align: center; width: 20%">
+          <img src="images/Part A/part_1_4/5.png" width="70%" />
+        </td>
+      </tr>
+    </table>
+    <h5>Results</h5>
+    <table style="width: 100%; text-align: center; border-collapse: collapse;">
+      <tr>
+        <td style="text-align: center; width: 33%">
+          <img src="images/Part A/part_1_4/iterative.png" width="70%" />
+          <figcaption>Iteratively Denoised Campanile</figcaption>
+        </td>
+        <td style="text-align: center; width: 33%">
+          <img src="images/Part A/part_1_4/one-step.png" width="70%" />
+          <figcaption>One-Step Denoised Campanile</figcaption>
+        </td>
+        <td style="text-align: center; width: 33%">
+          <img src="images/Part A/part_1_4/gaussian.png" width="70%" />
+          <figcaption>Gaussian Blurred Campanile</figcaption>
+        </td>
+      </tr>
+    </table>
+
+    <h4>1.5 Diffusion Model Sampling</h4>
+
+    <table style="width: 100%; text-align: center; border-collapse: collapse;">
+      <tr>
+        <td style="text-align: center; width: 20%">
+          <img src="images/Part A/part_1_5/1.png" width="70%" />
+          <figcaption>Sample 1</figcaption>
+        </td>
+        <td style="text-align: center; width: 20%">
+          <img src="images/Part A/part_1_5/2.png" width="70%" />
+          <figcaption>Sample 2</figcaption>
+        </td>
+        <td style="text-align: center; width: 20%">
+          <img src="images/Part A/part_1_5/3.png" width="70%" />
+          <figcaption>Sample 3</figcaption>
+        </td>
+        <td style="text-align: center; width: 20%">
+          <img src="images/Part A/part_1_5/4.png" width="70%" />
+          <figcaption>Sample 4</figcaption>
+        </td>
+        <td style="text-align: center; width: 20%">
+          <img src="images/Part A/part_1_5/5.png" width="70%" />
+          <figcaption>Sample 5</figcaption>
+        </td>
+      </tr>
+    </table>
+
+    <h4>1.6 Classifier-Free Guidance (CFG)</h4>
+    <h5>Implementation</h5>
+    <p>Implementation was the same as above but updated noise estimate with cfg_noise = uncond_noise_est + scale *
+      (noise_est - uncond_noise_est)</p>
+    <table style="width: 100%; text-align: center; border-collapse: collapse;">
+      <tr>
+        <td style="text-align: center; width: 20%">
+          <img src="images/Part A/part_1_6/1.png" width="70%" />
+          <figcaption>Sample 1 with CFG</figcaption>
+        </td>
+        <td style="text-align: center; width: 20%">
+          <img src="images/Part A/part_1_6/2.png" width="70%" />
+          <figcaption>Sample 2 with CFG</figcaption>
+        </td>
+        <td style="text-align: center; width: 20%">
+          <img src="images/Part A/part_1_6/3.png" width="70%" />
+          <figcaption>Sample 3 with CFG</figcaption>
+        </td>
+        <td style="text-align: center; width: 20%">
+          <img src="images/Part A/part_1_6/4.png" width="70%" />
+          <figcaption>Sample 4 with CFG</figcaption>
+        </td>
+        <td style="text-align: center; width: 20%">
+          <img src="images/Part A/part_1_6/5.png" width="70%" />
+          <figcaption>Sample 5 with CFG</figcaption>
+        </td>
+      </tr>
+    </table>
+
+    <h4>1.7 Image-to-image Translation</h4>
+
+    <h6>Campanile</h6>
+    <table style="width: 100%; text-align: center; border-collapse: collapse;">
+      <tr>
+        <td style="text-align: center; width: 14%">
+          <img src="images/Part A/part_1_7/c_1.png" width="70%" />
+          <figcaption>SDEdit with i_start=1</figcaption>
+        </td>
+        <td style="text-align: center; width: 14%">
+          <img src="images/Part A/part_1_7/c_2.png" width="70%" />
+          <figcaption>SDEdit with i_start=3</figcaption>
+        </td>
+        <td style="text-align: center; width: 14%">
+          <img src="images/Part A/part_1_7/c_3.png" width="70%" />
+          <figcaption>SDEdit with i_start=5</figcaption>
+        </td>
+        <td style="text-align: center; width: 14%">
+          <img src="images/Part A/part_1_7/c_4.png" width="70%" />
+          <figcaption>SDEdit with i_start=7</figcaption>
+        </td>
+        <td style="text-align: center; width: 14%">
+          <img src="images/Part A/part_1_7/c_5.png" width="70%" />
+          <figcaption>SDEdit with i_start=10</figcaption>
+        </td>
+        <td style="text-align: center; width: 14%">
+          <img src="images/Part A/part_1_7/c_6.png" width="70%" />
+          <figcaption>SDEdit with i_start=20</figcaption>
+        </td>
+        <td style="text-align: center; width: 14%">
+          <img src="images/Part A/campanile.png" width="70%" />
+          <figcaption>Campanile</figcaption>
+        </td>
+      </tr>
+    </table>
+    <h6>Eiffel Tower</h6>
+    <table style="width: 100%; text-align: center; border-collapse: collapse;">
+      <tr>
+        <td style="text-align: center; width: 14%">
+          <img src="images/Part A/part_1_7/e_1.png" width="70%" />
+          <figcaption>SDEdit with i_start=1</figcaption>
+        </td>
+        <td style="text-align: center; width: 14%">
+          <img src="images/Part A/part_1_7/e_2.png" width="70%" />
+          <figcaption>SDEdit with i_start=3</figcaption>
+        </td>
+        <td style="text-align: center; width: 14%">
+          <img src="images/Part A/part_1_7/e_3.png" width="70%" />
+          <figcaption>SDEdit with i_start=5</figcaption>
+        </td>
+        <td style="text-align: center; width: 14%">
+          <img src="images/Part A/part_1_7/e_4.png" width="70%" />
+          <figcaption>SDEdit with i_start=7</figcaption>
+        </td>
+        <td style="text-align: center; width: 14%">
+          <img src="images/Part A/part_1_7/e_5.png" width="70%" />
+          <figcaption>SDEdit with i_start=10</figcaption>
+        </td>
+        <td style="text-align: center; width: 14%">
+          <img src="images/Part A/part_1_7/e_6.png" width="70%" />
+          <figcaption>SDEdit with i_start=20</figcaption>
+        </td>
+        <td style="text-align: center; width: 14%">
+          <img src="images/Part A/part_1_7_3/eiffel.png" width="70%" />
+          <figcaption>Eiffel Tower</figcaption>
+        </td>
+      </tr>
+    </table>
+    <h6>Pikachu</h6>
+    <table style="width: 100%; text-align: center; border-collapse: collapse;">
+      <tr>
+        <td style="text-align: center; width: 14%">
+          <img src="images/Part A/part_1_7/p_1.png" width="70%" />
+          <figcaption>SDEdit with i_start=1</figcaption>
+        </td>
+        <td style="text-align: center; width: 14%">
+          <img src="images/Part A/part_1_7/p_2.png" width="70%" />
+          <figcaption>SDEdit with i_start=3</figcaption>
+        </td>
+        <td style="text-align: center; width: 14%">
+          <img src="images/Part A/part_1_7/p_3.png" width="70%" />
+          <figcaption>SDEdit with i_start=5</figcaption>
+        </td>
+        <td style="text-align: center; width: 14%">
+          <img src="images/Part A/part_1_7/p_4.png" width="70%" />
+          <figcaption>SDEdit with i_start=7</figcaption>
+        </td>
+        <td style="text-align: center; width: 14%">
+          <img src="images/Part A/part_1_7/p_5.png" width="70%" />
+          <figcaption>SDEdit with i_start=10</figcaption>
+        </td>
+        <td style="text-align: center; width: 14%">
+          <img src="images/Part A/part_1_7/p_6.png" width="70%" />
+          <figcaption>SDEdit with i_start=20</figcaption>
+        </td>
+        <td style="text-align: center; width: 14%">
+          <img src="images/Part A/part_1_7/pikachu.png" width="70%" />
+          <figcaption>Pikachu</figcaption>
+        </td>
+      </tr>
+    </table>
+
+    <h5>1.7.1 Editing Hand-Drawn and Web Images</h5>
+
+    <h6>Online Image</h6>
+    <table style="width: 100%; text-align: center; border-collapse: collapse;">
+      <tr>
+        <td style="text-align: center; width:14%">
+          <img src="images/Part A/part_1_7_1/w_1.png" width="70%" />
+          <figcaption>i_start=1</figcaption>
+        </td>
+        <td style="text-align: center; width: 14%">
+          <img src="images/Part A/part_1_7_1/w_2.png" width="70%" />
+          <figcaption>i_start=3</figcaption>
+        </td>
+        <td style="text-align: center; width: 14%">
+          <img src="images/Part A/part_1_7_1/w_3.png" width="70%" />
+          <figcaption>i_start=5</figcaption>
+        </td>
+        <td style="text-align: center; width: 14%">
+          <img src="images/Part A/part_1_7_1/w_4.png" width="70%" />
+          <figcaption>i_start=7</figcaption>
+        </td>
+        <td style="text-align: center; width: 14%">
+          <img src="images/Part A/part_1_7_1/w_5.png" width="70%" />
+          <figcaption>i_start=10</figcaption>
+        </td>
+        <td style="text-align: center; width: 14%">
+          <img src="images/Part A/part_1_7_1/w_6.png" width="70%" />
+          <figcaption>i_start=20</figcaption>
+        </td>
+        <td style="text-align: center; width: 14%">
+          <img src="images/Part A/part_1_7_1/web.png" width="70%" />
+          <figcaption>Online Image</figcaption>
+        </td>
+      </tr>
+    </table>
+    <h6>Drawn image 1</h6>
+    <table style="width: 100%; text-align: center; border-collapse: collapse;">
+      <tr>
+        <td style="text-align: center; width: 14%">
+          <img src="images/Part A/part_1_7_1/d1_1.png" width="70%" />
+          <figcaption>i_start=1</figcaption>
+        </td>
+        <td style="text-align: center; width: 14%">
+          <img src="images/Part A/part_1_7_1/d1_2.png" width="70%" />
+          <figcaption>i_start=3</figcaption>
+        </td>
+        <td style="text-align: center; width: 14%">
+          <img src="images/Part A/part_1_7_1/d1_3.png" width="70%" />
+          <figcaption>i_start=5</figcaption>
+        </td>
+        <td style="text-align: center; width: 14%">
+          <img src="images/Part A/part_1_7_1/d1_4.png" width="70%" />
+          <figcaption>i_start=7</figcaption>
+        </td>
+        <td style="text-align: center; width: 14%">
+          <img src="images/Part A/part_1_7_1/d1_5.png" width="70%" />
+          <figcaption>i_start=10</figcaption>
+        </td>
+        <td style="text-align: center; width: 14%">
+          <img src="images/Part A/part_1_7_1/d1_6.png" width="70%" />
+          <figcaption>i_start=20</figcaption>
+        </td>
+        <td style="text-align: center; width: 14%">
+          <img src="images/Part A/part_1_7_1/drawn_1.png" width="70%" />
+          <figcaption>Drawn Image 1</figcaption>
+        </td>
+      </tr>
+    </table>
+    <h6>Drawn image 2</h6>
+    <table style="width: 100%; text-align: center; border-collapse: collapse;">
+      <tr>
+        <td style="text-align: center; width: 14%">
+          <img src="images/Part A/part_1_7_1/d2_1.png" width="70%" />
+          <figcaption>i_start=1</figcaption>
+        </td>
+        <td style="text-align: center; width: 14%">
+          <img src="images/Part A/part_1_7_1/d2_2.png" width="70%" />
+          <figcaption>i_start=3</figcaption>
+        </td>
+        <td style="text-align: center; width: 14%">
+          <img src="images/Part A/part_1_7_1/d2_3.png" width="70%" />
+          <figcaption>i_start=5</figcaption>
+        </td>
+        <td style="text-align: center; width: 14%">
+          <img src="images/Part A/part_1_7_1/d2_4.png" width="70%" />
+          <figcaption>i_start=7</figcaption>
+        </td>
+        <td style="text-align: center; width: 14%">
+          <img src="images/Part A/part_1_7_1/d2_5.png" width="70%" />
+          <figcaption>i_start=10</figcaption>
+        </td>
+        <td style="text-align: center; width: 14%">
+          <img src="images/Part A/part_1_7_1/d2_6.png" width="70%" />
+          <figcaption>i_start=20</figcaption>
+        </td>
+        <td style="text-align: center; width: 14%">
+          <img src="images/Part A/part_1_7_1/drawn_2.png" width="70%" />
+          <figcaption>Drawn Image 2</figcaption>
+        </td>
+      </tr>
+    </table>
+
+    <h5>1.7.2 Inpainting</h5>
+    <h6>Implementation</h6>
+    <p>I modified the sampling loop to preserve the original image outside the masked region at
+      each timestep. Given an original image x<sub>orig</sub> and a binary mask m (where m=1 indicates the region to
+      inpaint), I ran the normal denoising step to get x<sub>t</sub>, then force the pixels outside the mask to match the
+      original image with appropriate noise: x<sub>t</sub> ← m · x<sub>t</sub> + (1 - m) · forward(x<sub>orig</sub>, t). The
+      forward function adds the correct amount of noise to x<sub>orig</sub> for timestep t.</p>
+    <table style="width: 100%; text-align: center; border-collapse: collapse;">
+      <tr>
+        <td style="text-align: center; width: 25%">
+          <img src="images/Part A/part_1_7_2/campanile.png" width="70%" />
+          <figcaption>Campanile</figcaption>
+        </td>
+        <td style="text-align: center; width: 25%">
+          <img src="images/Part A/part_1_7_2/c_mask.png" width="70%" />
+          <figcaption>Mask</figcaption>
+        </td>
+        <td style="text-align: center; width: 25%">
+          <img src="images/Part A/part_1_7_2/c_replace.png" width="70%" />
+          <figcaption>Hole to Fill</figcaption>
+        </td>
+        <td style="text-align: center; width: 25%">
+          <img src="images/Part A/part_1_7_2/c_filled.png" width="70%" />
+          <figcaption>Campanile Inpainted</figcaption>
+        </td>
+      </tr>
+    </table>
+    <table style="width: 100%; text-align: center; border-collapse: collapse;">
+      <tr>
+        <td style="text-align: center; width: 25%">
+          <img src="images/Part A/part_1_7_2/pikachu.png" width="70%" />
+          <figcaption>Pikachu</figcaption>
+        </td>
+        <td style="text-align: center; width: 25%">
+          <img src="images/Part A/part_1_7_2/p_mask.png" width="70%" />
+          <figcaption>Mask</figcaption>
+        </td>
+        <td style="text-align: center; width: 25%">
+          <img src="images/Part A/part_1_7_2/p_replace.png" width="70%" />
+          <figcaption>Hole to Fill</figcaption>
+        </td>
+        <td style="text-align: center; width: 25%">
+          <img src="images/Part A/part_1_7_2/p_filled.png" width="70%" />
+          <figcaption>Pikachu Inpainted</figcaption>
+        </td>
+      </tr>
+    </table>
+    <table style="width: 100%; text-align: center; border-collapse: collapse;">
+      <tr>
+        <td style="text-align: center; width: 25%">
+          <img src="images/Part A/part_1_7_2/snorlax.png" width="70%" />
+          <figcaption>Snorlax</figcaption>
+        </td>
+        <td style="text-align: center; width: 25%">
+          <img src="images/Part A/part_1_7_2/s_mask.png" width="70%" />
+          <figcaption>Mask</figcaption>
+        </td>
+        <td style="text-align: center; width: 25%">
+          <img src="images/Part A/part_1_7_2/s_replaced.png" width="70%" />
+          <figcaption>Hole to Fill</figcaption>
+        </td>
+        <td style="text-align: center; width: 25%">
+          <img src="images/Part A/part_1_7_2/s_filled.png" width="70%" />
+          <figcaption>Snorlax Inpainted</figcaption>
+        </td>
+      </tr>
+    </table>
+
+    <h5>1.7.3 Text-Conditional Image-to-image Translation</h5>
+    <h6>Couch that is a potato to Campanile</h6>
+    <table style="width: 100%; text-align: center; border-collapse: collapse;">
+      <tr>
+        <td style="text-align: center; width: 14%">
+          <img src="images/Part A/part_1_7_3/c_1.png" width="70%" />
+          <figcaption>noise level 1</figcaption>
+        </td>
+        <td style="text-align: center; width: 14%">
+          <img src="images/Part A/part_1_7_3/c_2.png" width="70%" />
+          <figcaption>noise level 3</figcaption>
+        </td>
+        <td style="text-align: center; width: 14%">
+          <img src="images/Part A/part_1_7_3/c_3.png" width="70%" />
+          <figcaption>noise level 5</figcaption>
+        </td>
+        <td style="text-align: center; width: 14%">
+          <img src="images/Part A/part_1_7_3/c_4.png" width="70%" />
+          <figcaption>noise level 7</figcaption>
+        </td>
+        <td style="text-align: center; width: 14%">
+          <img src="images/Part A/part_1_7_3/c_5.png" width="70%" />
+          <figcaption>noise level 10</figcaption>
+        </td>
+        <td style="text-align: center; width: 14%">
+          <img src="images/Part A/part_1_7_3/c_6.png" width="70%" />
+          <figcaption>noise level 20</figcaption>
+        </td>
+        <td style="text-align: center; width: 14%">
+          <img src="images/Part A/campanile.png" width="70%" />
+          <figcaption>Campanile</figcaption>
+        </td>
+      </tr>
+    </table>
+    <h6>Pikachu to anime drawing</h6>
+    <table style="width: 100%; text-align: center; border-collapse: collapse;">
+      <tr>
+        <td style="text-align: center; width: 14%">
+          <img src="images/Part A/part_1_7_3/o_1.png" width="70%" />
+          <figcaption>noise level 1</figcaption>
+        </td>
+        <td style="text-align: center; width: 14%">
+          <img src="images/Part A/part_1_7_3/o_2.png" width="70%" />
+          <figcaption>noise level 3</figcaption>
+        </td>
+        <td style="text-align: center; width: 14%">
+          <img src="images/Part A/part_1_7_3/o_3.png" width="70%" />
+          <figcaption>noise level 5</figcaption>
+        </td>
+        <td style="text-align: center; width: 14%">
+          <img src="images/Part A/part_1_7_3/o_4.png" width="70%" />
+          <figcaption>noise level 7</figcaption>
+        </td>
+        <td style="text-align: center; width: 14%">
+          <img src="images/Part A/part_1_7_3/o_5.png" width="70%" />
+          <figcaption>noise level 10</figcaption>
+        </td>
+        <td style="text-align: center; width: 14%">
+          <img src="images/Part A/part_1_7_3/o_6.png" width="70%" />
+          <figcaption>noise level 20</figcaption>
+        </td>
+        <td style="text-align: center; width: 14%">
+          <img src="images/Part A/part_1_7_1/web.png" width="70%" />
+          <figcaption>Anime drawing</figcaption>
+        </td>
+      </tr>
+    </table>
+    <h6>Pikachu to Eiffel Tower</h6>
+
+    <table style="width: 100%; text-align: center; border-collapse: collapse;">
+      <tr>
+        <td style="text-align: center; width: 14%">
+          <img src="images/Part A/part_1_7_3/e_1.png" width="70%" />
+          <figcaption>noise level 1</figcaption>
+        </td>
+        <td style="text-align: center; width: 14%">
+          <img src="images/Part A/part_1_7_3/e_2.png" width="70%" />
+          <figcaption>noise level 3</figcaption>
+        </td>
+        <td style="text-align: center; width: 14%">
+          <img src="images/Part A/part_1_7_3/e_3.png" width="70%" />
+          <figcaption>noise level 5</figcaption>
+        </td>
+        <td style="text-align: center; width: 14%">
+          <img src="images/Part A/part_1_7_3/e_4.png" width="70%" />
+          <figcaption>noise level 7</figcaption>
+        </td>
+        <td style="text-align: center; width: 14%">
+          <img src="images/Part A/part_1_7_3/e_5.png" width="70%" />
+          <figcaption>noise level 10</figcaption>
+        </td>
+        <td style="text-align: center; width: 14%">
+          <img src="images/Part A/part_1_7_3/e_6.png" width="70%" />
+          <figcaption>noise level 20</figcaption>
+        </td>
+        <td style="text-align: center; width: 14%">
+          <img src="images/Part A/part_1_7_3/eiffel.png" width="70%" />
+          <figcaption>Eiffel Tower</figcaption>
+        </td>
+      </tr>
+    </table>
+
+
+
+    <h4>1.8 Visual Anagrams</h4>
+    <h5>Implementation</h5>
+    <p>
+      I modified the sampling loop to compute two noise estimates at each timestep. First,
+      I compute ε<sub>1</sub>
+      by running CFG normally with prompt p<sub>1</sub>. Then, I flip the current image x<sub>t</sub> upside down, run
+      CFG with prompt p<sub>2</sub>, and flip the output back to get ε<sub>2</sub>. The final noise estimate is the
+      average ε = (ε<sub>1</sub> + ε<sub>2</sub>) / 2. 
+    </p>
+
+    <table style="width: 100%; text-align: center; border-collapse: collapse;">
+      <tr>
+        <td style="text-align: center; width: 50%">
+          <img src="images/Part A/part_1_8/pikachu.png" width="70%" />
+          <figcaption>Pikachu</figcaption>
+        </td>
+        <td style="text-align: center; width: 50%">
+          <img src="images/Part A/part_1_8/pikachu.png" width="70%" style="transform: scaleY(-1);" />
+          <figcaption>T-rex on a unicycle</figcaption>
+        </td>
+
+      </tr>
+      <tr>
+        <td style="text-align: center; width: 50%">
+          <img src="images/Part A/part_1_8/mount-everest.png" width="70%" />
+          <figcaption>Mount Everest Cyberpunk</figcaption>
+        </td>
+        <td style="text-align: center; width: 50%">
+          <img src="images/Part A/part_1_8/mount-everest.png" width="70%" style="transform: scaleY(-1);" />
+          <figcaption>Roommate doing homework</figcaption>
+        </td>
+
+      </tr>
+    </table>
+
+    <h4>1.9 Hybrid Images</h4>
+    <h5>Implementation</h5>
+    <p>I modified the sampling loop to compute two noise estimates at each timestep and combine
+      them in the frequency domain. First, I compute ε<sub>1</sub> by running CFG with prompt p<sub>1</sub>, and
+      ε<sub>2</sub> by running CFG with prompt p<sub>2</sub>. Then I apply a Gaussian low-pass filter to ε<sub>1</sub> and a
+      high-pass filter to ε<sub>2</sub>, combining them as ε = f<sub>lowpass</sub>(ε<sub>1</sub>) +
+      f<sub>highpass</sub>(ε<sub>2</sub>). The low-pass filter is a Gaussian blur with kernel size 33 and sigma 2, and the
+      high-pass filter is computed as the original minus the low-passed version. 
+</p>
+    <table style="width: 100%; text-align: center; border-collapse: collapse;">
+      <tr>
+        <td style="text-align: center; width: 20%">
+          <img src="images/Part A/part_1_9/pikachu.png" width="70%" />
+          <figcaption>Hybrid of "pikachu" and "t-rex on a unicycle"</figcaption>
+        </td>
+        <td style="text-align: center; width: 20%">
+          <img src="images/Part A/part_1_9/everest.png" width="70%" />
+          <figcaption>Hybrid of "mount everest cyberpunk" and "roommate doing homework"</figcaption>
+        </td>
+
+      </tr>
+    </table>
+    <h2>Part A: The Power of Diffusion Models</h2>
+    <h3>Part 1: Training a Single-Step Denoising UNet</h3>
+    <h4>1.2 Using the UNet to Train a Denoiser</h4>
+    <div style="width: 100%; text-align: center; border-collapse: collapse;">
+      <img src="images/Part B/part_1_2/noising.png" width="100%" />
+      <figcaption>Visualization of noising process</figcaption>
+    </div>
+    <h4>1.2.1 Training</h4>
+    <div style="width: 100%; text-align: center; border-collapse: collapse;">
+      <img src="images/Part B/part_1_2_1/epoch_1.png" width="100%" />
+      <figcaption>After Epoch 1</figcaption>
+    </div>
+    <div style="width: 100%; text-align: center; border-collapse: collapse;">
+      <img src="images/Part B/part_1_2_1/epoch_2.png" width="100%" />
+      <figcaption>After Epoch 5</figcaption>
+    </div>
+    <div style="width: 100%; text-align: center; border-collapse: collapse;">
+      <img src="images/Part B/part_1_2_1/training_curve.png" width="100%" />
+      <figcaption>Training loss curve</figcaption>
+    </div>
+    <h4>1.2.2 Out-of-Distribution Testing</h4>
+    <div>
+      <div style="width: 100%; text-align: center; border-collapse: collapse;">
+        <img src="images/Part B/part_1_2_2/test.png" width="100%" />
+        <figcaption>Results of testing</figcaption>
+      </div>
+      <h4>1.2.3 Denoising Pure Noise</h4>
+      <div style="width: 100%; text-align: center; border-collapse: collapse;">
+        <img src="images/Part B/part_1_2_3/epoch_1.png" width="100%" />
+        <figcaption>After Epoch 1</figcaption>
+      </div>
+      <div style="width: 100%; text-align: center; border-collapse: collapse;">
+        <img src="images/Part B/part_1_2_3/epoch_5.png" width="100%" />
+        <figcaption>After Epoch 5</figcaption>
+      </div>
+      <div style="width: 100%; text-align: center; border-collapse: collapse;">
+        <img src="images/Part B/part_1_2_3/training_loss.png" width="100%" />
+        <figcaption>Training loss curve</figcaption>
+      </div>
+      <p>After training for 5 epochs, I do not observe any recognizable digit patterns in the
+        generated outputs. Instead, the results are just blurry and grayish blobs with slightly darker regions around
+        the edges.
+        This is expected behavior because the model is trained with MSE loss. It learns to predict the mean of all
+        the training images. When given pure noise it is the average of all the digits, which does not resemble any
+        specific digit.
+      </p>
+      <h3>Part 2: Training a Flow Matching Model</h3>
+      <h4>2.2 Training the UNet</h4>
+    </div>
+    <div style="width: 100%; text-align: center; border-collapse: collapse;">
+      <img src="images/Part B/part_2_2/loss_curve.png" width="100%" />
+      <figcaption>Training loss curve</figcaption>
+    </div>
+    <h4>2.3 Sampling from the UNet</h4>
+    <div style="width: 100%; text-align: center; border-collapse: collapse;">
+      <img src="images/Part B/part_2_3/1.png" width="100%" />
+      <figcaption>After Epoch 1</figcaption>
+    </div>
+    <div style="width: 100%; text-align: center; border-collapse: collapse;">
+      <img src="images/Part B/part_2_3/5.png" width="100%" />
+      <figcaption>After Epoch 5</figcaption>
+    </div>
+    <div style="width: 100%; text-align: center; border-collapse: collapse;">
+      <img src="images/Part B/part_2_3/10.png" width="100%" />
+      <figcaption>After Epoch 10</figcaption>
+    </div>
+    <h4>2.5 Training the Class-Conditioning UNet</h4>
+    <div>
+      <div style="width: 100%; text-align: center; border-collapse: collapse;">
+        <img src="images/Part B/part_2_5/loss-curve.png" width="100%" />
+        <figcaption>Training loss curve</figcaption>
+      </div>
+      <h4>2.6 Sampling from the Class-Conditioning UNet</h4>
+      <div style="width: 100%; text-align: center; border-collapse: collapse;">
+        <img src="images/Part B/part_2_6/1.png" width="100%" />
+        <figcaption>After Epoch 1</figcaption>
+      </div>
+      <div style="width: 100%; text-align: center; border-collapse: collapse;">
+        <img src="images/Part B/part_2_6/5.png" width="100%" />
+        <figcaption>After Epoch 5</figcaption>
+      </div>
+      <div style="width: 100%; text-align: center; border-collapse: collapse;">
+        <img src="images/Part B/part_2_6/10.png" width="100%" />
+        <figcaption>After Epoch 10</figcaption>
+      </div>
+
+      <h5>Removing Scheduler</h5>
+      <p>I did early termination to be able to remove the scheduler. It originally had Loss of 0.0799 after epoch 10.
+        I was able to achieve notice that it had a loss of 0.0736 at epoch 5 and stop it there before it possible got
+        worse.</p>
+    </div>
+    <div style="width: 100%; text-align: center; border-collapse: collapse;">
+      <img src="images/Part B/part_2_6/termination.png" width="100%" />
+      <figcaption>Result with early termination at epoch 5</figcaption>
+    </div>
+</body>
+
+</html>
